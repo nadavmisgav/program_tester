@@ -15,13 +15,20 @@ class Tester:
         try:
             with Program(path) as prog:
                 for _, args, excpect in self.tests:
-                    res = excpect == prog.run(args)
+                    res = self._run_test(prog, args, excpect)
                     print("." if res else "X", end="")
                     self.results[student].append("PASS" if res else "FAIL")
                 print()
-
         except RuntimeError:
             self.results[student].append("Failed to compile")
+
+    @staticmethod
+    def _run_test(prog, args, excpect):
+        prog.log_file.write("#"*40+"\n")
+        res = excpect == prog.run(args)
+        prog.log_file.write("expected:\n{}\n".format(excpect))
+        prog.log_file.write("result: {}\n".format("PASS" if res else "FAIL"))
+        return res
 
     def report_results(self):
         with open("result.csv", "w") as fd:
