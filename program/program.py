@@ -1,5 +1,6 @@
 from subprocess import Popen, PIPE
 import os
+import glob
 
 
 COMPILER = "gcc"
@@ -14,7 +15,8 @@ class Program:
         self.log_file = None
 
     def _compile(self):
-        stdout = self._execute(COMPILER, CFLAGS, "main.c", "-o", self.program)
+        files = [file for file in glob.glob("*.[ch]")]
+        stdout = self._execute(COMPILER, CFLAGS, *files, "-o", self.program)
 
     def _execute(self, *args):
         self.log_file.write("Running `{}`\n".format(args))
