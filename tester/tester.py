@@ -14,13 +14,15 @@ class Tester:
     def test(self, student, path):
         try:
             with Program(path) as prog:
+                prog.compile()
                 for _, args, excpect in self.tests:
                     res = self._run_test(prog, args, excpect)
                     print("." if res else "X", end="")
                     self.results[student].append("PASS" if res else "FAIL")
                 print()
-        except RuntimeError:
-            self.results[student].append("Failed to compile")
+        except (RuntimeError, RuntimeWarning) as e:
+            print(str(e))
+            self.results[student].append(str(e))
 
     @staticmethod
     def _run_test(prog, args, excpect):

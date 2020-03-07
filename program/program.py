@@ -14,16 +14,24 @@ class Program:
         self.program = "./test"
         self.log_file = None
 
-    def _compile(self):
+    def compile(self):
         files = [file for file in glob.glob("*.[ch]")]
-        stdout = self._execute(COMPILER, CFLAGS, *files, "-o", self.program)
+        stderr = self._execute(COMPILER, CFLAGS, *files,
+                               "-o", self.program, stderr=True)
+        if "error" in stderr:
+            raise RuntimeError("Failed to compile")
+        if "warning" in stderr:
+            raise RuntimeWarning("Warning in compilation")
 
-    def _execute(self, *args):
+    def _execute(self, *args, stderr=False):
         self.log_file.write("Running `{}`\n".format(args))
-        stdout = Popen(args, stdout=PIPE).communicate()[0]
+        stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
         stdout = stdout.decode("utf-8").replace('\r', '')
-        self.log_file.write("output: \n{}\n".format(stdout))
-        return stdout
+        stderr = stderr.decode("utf-8").replace('\r', '')
+
+        output = stderr if stderr else stdout
+        self.log_file.write("output: \n{}\n".format(output))
+        return output
 
     def run(self, *args):
         return self._execute(self.program, *args)
@@ -32,7 +40,6 @@ class Program:
         self.prev_dir = os.path.abspath(os.getcwd())
         os.chdir(self.dir)
         self.log_file = open("command.log", "w")
-        self._compile()
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
