@@ -20,8 +20,8 @@ class Program:
                                "-o", self.program, stderr=True)
         if "error" in stderr:
             raise RuntimeError("Failed to compile")
-        if "warning" in stderr:
-            raise RuntimeWarning("Warning in compilation")
+        if "warning" in stderr:            
+            raise RuntimeWarning("Warning")
 
     def _execute(self, *args, stderr=False):
         self.log_file.write("Running `{}`\n".format(args))

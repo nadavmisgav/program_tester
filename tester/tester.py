@@ -14,14 +14,20 @@ class Tester:
     def test(self, student, path):
         try:
             with Program(path) as prog:
-                prog.compile()
+                try:
+                    prog.compile()
+                except RuntimeWarning as e:
+                    print("[\033[93m{}\033[0m] ".format(str(e)), end="")
+                    self.results[student].append(str(e))
+
                 for _, args, excpect in self.tests:
                     res = self._run_test(prog, args, excpect)
-                    print("." if res else "X", end="")
+                    print(
+                        "\033[92m.\033[0m" if res else "\033[91mX\033[0m", end="")
                     self.results[student].append("PASS" if res else "FAIL")
                 print()
-        except (RuntimeError, RuntimeWarning) as e:
-            print(str(e))
+        except RuntimeError as e:
+            print("\033[91m{}\033[0m".format(str(e)))
             self.results[student].append(str(e))
 
     @staticmethod
