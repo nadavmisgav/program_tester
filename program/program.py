@@ -1,4 +1,5 @@
-from subprocess import Popen, PIPE
+from pexpect import spawn, TIMEOUT, EOF
+from time import sleep
 import os
 import glob
 
@@ -16,25 +17,33 @@ class Program:
 
     def compile(self):
         files = [file for file in glob.glob("*.[ch]")]
-        stderr = self._execute(COMPILER, CFLAGS, *files,
-                               "-o", self.program, stderr=True)
-        if "error" in stderr:
+        output = self._execute([COMPILER, CFLAGS, *files, "-o", self.program])
+        if "error" in output:
             raise RuntimeError("Failed to compile")
-        if "warning" in stderr:            
+        if "warning" in output:
             raise RuntimeWarning("Warning")
 
-    def _execute(self, *args, stderr=False):
+    def _execute(self, args, inputs=None):
         self.log_file.write("Running `{}`\n".format(args))
-        stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
-        stdout = stdout.decode("utf-8").replace('\r', '')
-        stderr = stderr.decode("utf-8").replace('\r', '')
+        p = spawn(" ".join(args))
+        output = ""
 
-        output = stderr if stderr else stdout
-        self.log_file.write("output: \n{}\n".format(output))
+        if inputs is not None:
+            for prompt, value in inputs:
+                output += prompt
+                try:
+                    p.expect(prompt, timeout=3)
+                except TIMEOUT:
+                    raise RuntimeError(output)
+                output += p.before.decode("utf-8").replace('\r', '')
+                p.sendline(value)
+
+        p.expect(EOF)
+        output += p.before.decode("utf-8").replace('\r', '')
         return output
 
-    def run(self, *args):
-        return self._execute(self.program, *args)
+    def run(self, args, inputs):
+        return self._execute([self.program, args], inputs)
 
     def __enter__(self):
         self.prev_dir = os.path.abspath(os.getcwd())

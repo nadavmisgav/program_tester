@@ -3,7 +3,7 @@ from tester import Tester
 
 import sys
 sys.path.append('tests')
-from example_tests import tests  # noqa
+from assignment1 import tests
 
 
 SRC_DIR = "src_files"
