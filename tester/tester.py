@@ -21,7 +21,6 @@ class Tester:
                         prog.compile()
                     except RuntimeWarning as e:
                         print("[\033[93m{}\033[0m] ".format(str(e)), end="")
-                        self.results[student].append(str(e))
 
                     for _, args, inputs, expect in tests:
                         res = self._run_test(prog, args, inputs, expect)
@@ -31,6 +30,7 @@ class Tester:
             except RuntimeError as e:
                 print("\033[91m{}\033[0m".format(str(e)))
                 self.results[student][q_name].append(str(e))
+                break
         print()
 
     @staticmethod
