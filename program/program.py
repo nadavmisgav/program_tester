@@ -32,7 +32,7 @@ class Program:
             for prompt, value in inputs:
                 output += prompt
                 try:
-                    p.expect(prompt, timeout=3)
+                    p.expect(prompt, timeout=1)
                 except TIMEOUT:
                     raise RuntimeError(output)
                 output += p.before.decode("utf-8").replace('\r', '')
@@ -48,7 +48,9 @@ class Program:
     def __enter__(self):
         self.prev_dir = os.path.abspath(os.getcwd())
         os.chdir(self.dir)
-        self.log_file = open("command.log", "w")
+        self.log_file = open("../test.log", "a")
+        self.log_file.write("{}\n".format(self.dir.split("/")[-1]))
+        self.log_file.write("#"*40+"\n")
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):

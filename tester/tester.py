@@ -35,7 +35,7 @@ class Tester:
 
     @staticmethod
     def _run_test(prog, args, inputs, expect):
-        prog.log_file.write("#"*40+"\n")
+        prog.log_file.write("-"*40+"\n")
         try:
             output = prog.run(args, inputs)
         except RuntimeError as e:
