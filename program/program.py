@@ -47,7 +47,10 @@ class Program:
 
     def __enter__(self):
         self.prev_dir = os.path.abspath(os.getcwd())
-        os.chdir(self.dir)
+        try:
+            os.chdir(self.dir)
+        except FileNotFoundError:
+            raise RuntimeError("Could not find {}".format(self.dir))
         self.log_file = open("../test.log", "a")
         self.log_file.write("{}\n".format(self.dir.split("/")[-1]))
         self.log_file.write("#"*40+"\n")

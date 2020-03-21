@@ -56,5 +56,5 @@ class Tester:
             handle.writerow(["student", "grade"] + test_names)
             for student, question in self.results.items():
                 results = [res for _, test in question.items() for res in test]
-                grade = 100*sum(1.0 for res in results if res == "PASS")/len(results)
+                grade = 100*sum(1.0 for res in results if res == "PASS")/len(test_names)
                 handle.writerow([student, grade] + results)
